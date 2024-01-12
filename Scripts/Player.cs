@@ -22,11 +22,15 @@ public class Player : KinematicBody2D
     private Vector2 facingDir = Vector2.Zero;
     private RayCast2D rayCast;
     private AnimatedSprite anim;
+    private Node enemyContainer;
+    private Node chestContainer;
 
     public override void _Ready()
     {
         rayCast = GetNode<RayCast2D>("RayCast2D");
         anim = GetNode<AnimatedSprite>("AnimatedSprite");
+        enemyContainer = GetNode<Node>("/root/MainScene/EnemyContainer");
+        chestContainer = GetNode<Node>("/root/MainScene/ChestContainer");
     }
 
     public override void _PhysicsProcess(float delta)
@@ -62,6 +66,39 @@ public class Player : KinematicBody2D
         MoveAndSlide(vel * moveSpeed);
 
         ManageAnimations();
+    }
+
+    public override void _Process(float delta)
+    {
+        if (Input.IsActionJustPressed("interact"))
+        {
+            TryInteract();
+        }
+    }
+
+    private void TryInteract()
+    {
+        rayCast.CastTo = facingDir * interactDist;
+
+        if (rayCast.IsColliding())
+        {
+            foreach (Enemy enemy in enemyContainer.GetChildren())
+            {
+                if (rayCast.GetCollider() == enemy)
+                {
+                    enemy.TakeDamage(damage);
+                }
+            }
+
+            foreach (Chest chest in chestContainer.GetChildren())
+            {
+                if (rayCast.GetCollider() == chest)
+                {
+                    chest.OnInteract(this);
+                }
+            }
+
+        }
     }
 
     private void ManageAnimations()
@@ -115,6 +152,11 @@ public class Player : KinematicBody2D
         {
             Die();
         }
+    }
+
+    public void GiveGold(int amount)
+    {
+        gold += amount;
     }
 
     public void GiveXP(int xpAmount)
