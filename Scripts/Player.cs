@@ -21,10 +21,12 @@ public class Player : KinematicBody2D
     private Vector2 vel = Vector2.Zero;
     private Vector2 facingDir = Vector2.Zero;
     private RayCast2D rayCast;
+    private AnimatedSprite anim;
 
     public override void _Ready()
     {
         rayCast = GetNode<RayCast2D>("RayCast2D");
+        anim = GetNode<AnimatedSprite>("AnimatedSprite");
     }
 
     public override void _PhysicsProcess(float delta)
@@ -58,5 +60,51 @@ public class Player : KinematicBody2D
 
         // moves the player
         MoveAndSlide(vel * moveSpeed);
+
+        ManageAnimations();
+    }
+
+    private void ManageAnimations()
+    {
+        if (vel.x > 0)
+        {
+            PlayAnimation("WalkRight");
+        }
+        else if (vel.x < 0)
+        {
+            PlayAnimation("WalkLeft");
+        }
+        else if (vel.y < 0)
+        {
+            PlayAnimation("WalkUp");
+        }
+        else if (vel.y > 0)
+        {
+            PlayAnimation("WalkDown");
+        }
+        else if (facingDir.x == 1)
+        {
+            PlayAnimation("IdleRight");
+        }
+        else if (facingDir.x == -1)
+        {
+            PlayAnimation("IdleLeft");
+        }
+        else if (facingDir.y == -1)
+        {
+            PlayAnimation("IdleUp");
+        }
+        else if (facingDir.y == 1)
+        {
+            PlayAnimation("IdleDown");
+        }
+    }
+
+    private void PlayAnimation(string animName)
+    {
+        if (anim.Animation != animName)
+        {
+            anim.Play(animName);
+        }
     }
 }
