@@ -4,10 +4,10 @@ using static Godot.GD;
 
 public class CameraFollow : Camera2D
 {
-    private KinematicBody2D target;
+    private Player target;
     public override void _Ready()
     {
-        target = GetNode<KinematicBody2D>("/root/MainScene/Player");
+        target = GetNode<Player>("/root/MainScene/Player");
     }
 
     public override void _Process(float delta)

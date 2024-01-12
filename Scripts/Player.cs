@@ -12,8 +12,8 @@ public class Player : KinematicBody2D
     private int gold = 0;
 
     private int curLvl = 0;
-    private int curXP = 0;
-    private int xpToNextLvl = 50;
+    private float curXP = 0;
+    private float xpToNextLvl = 50;
     private float xpToLvlIncreaseRate = 1.2f;
 
     private int interactDist = 70;
@@ -106,5 +106,37 @@ public class Player : KinematicBody2D
         {
             anim.Play(animName);
         }
+    }
+
+    public void TakeDamage(int dmgToTake)
+    {
+        curHP -= dmgToTake;
+        if (curHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void GiveXP(int xpAmount)
+    {
+        curXP += xpAmount;
+
+        if (curXP >= xpToNextLvl)
+        {
+            LevelUp();
+        }
+    }
+
+    private void LevelUp()
+    {
+        float overflowXP = curXP - xpToNextLvl;
+        xpToNextLvl *= xpToLvlIncreaseRate;
+        curXP = overflowXP;
+        curLvl++;
+    }
+
+    private void Die()
+    {
+        GetTree().ReloadCurrentScene();
     }
 }
