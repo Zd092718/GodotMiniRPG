@@ -20,10 +20,13 @@ public class Player : KinematicBody2D
 
     private Vector2 vel = Vector2.Zero;
     private Vector2 facingDir = Vector2.Zero;
+
+    // References
     private RayCast2D rayCast;
     private AnimatedSprite anim;
     private Node enemyContainer;
     private Node chestContainer;
+    private UI userInterface;
 
     public override void _Ready()
     {
@@ -31,6 +34,12 @@ public class Player : KinematicBody2D
         anim = GetNode<AnimatedSprite>("AnimatedSprite");
         enemyContainer = GetNode<Node>("/root/MainScene/EnemyContainer");
         chestContainer = GetNode<Node>("/root/MainScene/ChestContainer");
+        userInterface = GetNode<UI>("/root/MainScene/CanvasLayer/UI");
+
+        userInterface.UpdateLevelText(curLvl);
+        userInterface.UpdateHealthBar(curHP, maxHP);
+        userInterface.UpdateXPBar(curXP, xpToNextLvl);
+        userInterface.UpdateGoldText(gold);
     }
 
     public override void _PhysicsProcess(float delta)
@@ -82,6 +91,7 @@ public class Player : KinematicBody2D
 
         if (rayCast.IsColliding())
         {
+            // Check for enemy collisions when interacting
             foreach (Enemy enemy in enemyContainer.GetChildren())
             {
                 if (rayCast.GetCollider() == enemy)
@@ -90,6 +100,7 @@ public class Player : KinematicBody2D
                 }
             }
 
+            // Check for chest collisions when interacting
             foreach (Chest chest in chestContainer.GetChildren())
             {
                 if (rayCast.GetCollider() == chest)
@@ -148,6 +159,7 @@ public class Player : KinematicBody2D
     public void TakeDamage(int dmgToTake)
     {
         curHP -= dmgToTake;
+        userInterface.UpdateHealthBar(curHP, maxHP);
         if (curHP <= 0)
         {
             Die();
@@ -157,12 +169,13 @@ public class Player : KinematicBody2D
     public void GiveGold(int amount)
     {
         gold += amount;
+        userInterface.UpdateGoldText(gold);
     }
 
     public void GiveXP(int xpAmount)
     {
         curXP += xpAmount;
-
+        userInterface.UpdateXPBar(curXP, xpToNextLvl);
         if (curXP >= xpToNextLvl)
         {
             LevelUp();
@@ -175,6 +188,7 @@ public class Player : KinematicBody2D
         xpToNextLvl *= xpToLvlIncreaseRate;
         curXP = overflowXP;
         curLvl++;
+        userInterface.UpdateLevelText(curLvl);
     }
 
     private void Die()
